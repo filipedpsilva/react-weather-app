@@ -8,7 +8,7 @@ import { object, string } from "yup";
 
 import { ACCESS_KEY, API_KEY, BASE_API_URL } from "../../data/constants";
 import { ForecastData, WeatherData } from "../../data/interfaces";
-import { CurrentWeatherComponent } from "../../components";
+import { CurrentWeatherComponent, ForecastComponent } from "../../components";
 
 interface IWeatherState {
   errorMessage: string;
@@ -261,6 +261,13 @@ function WeatherPage(props: WeatherPageProps): JSX.Element {
         <CurrentWeatherComponent
           weatherData={weatherState.currentWeatherData}
           imgUrl={weatherState.locationImgUrl}
+          isMetricUnits={isMetricUnits}
+        />
+      )}
+
+      {weatherState.forecastData && weatherState.forecastData.list && (
+        <ForecastComponent
+          forecastData={weatherState.forecastData}
           isMetricUnits={isMetricUnits}
         />
       )}

@@ -86,3 +86,58 @@ export interface WeatherSys {
     sunrise: number;
     sunset: number;
 }
+
+
+export interface ForecastData {
+    cod: string;
+    message: number;
+    cnt: number;
+    list: List[];
+    city: City;
+}
+
+export interface City {
+    id: number;
+    name: string;
+    coord: Coord;
+    country: string;
+    population: number;
+    timezone: number;
+    sunrise: number;
+    sunset: number;
+}
+
+export interface List {
+    dt: number;
+    main: MainClass;
+    weather: Weather[];
+    clouds: Clouds;
+    wind: Wind;
+    visibility: number;
+    pop: number;
+    sys: ForecastSys;
+    dt_txt: Date;
+    rain?: WeatherVolume;
+    snow?: WeatherVolume;
+}
+
+export interface MainClass {
+    temp: number;
+    feels_like: number;
+    temp_min: number;
+    temp_max: number;
+    pressure: number;
+    sea_level: number;
+    grnd_level: number;
+    humidity: number;
+    temp_kf: number;
+}
+
+export interface ForecastSys {
+    pod: Pod;
+}
+
+export enum Pod {
+    D = "d",
+    N = "n",
+}
