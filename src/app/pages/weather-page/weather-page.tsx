@@ -20,6 +20,7 @@ interface IWeatherState {
 
 interface WeatherPageProps {}
 
+// @ts-ignore
 function WeatherPage(props: WeatherPageProps): JSX.Element {
   const initialWeatherState: IWeatherState = {
     errorMessage: "",
