@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 
 import axios from "axios";
+import { object, string } from "yup";
 import styled from "styled-components";
 import { createApi } from "unsplash-js";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { object, string } from "yup";
-import { useWindowWidth } from "@react-hook/window-size/throttled";
 
 import {
   ACCESS_KEY,
@@ -112,6 +111,7 @@ const Input = styled(Field)`
 
   @media only screen and (min-width: ${DEVICE_SIZES.mobileS}) and (max-width: ${DEVICE_SIZES.tablet}) {
     max-width: 80vw;
+    font-size: x-large;
   }
 `;
 
@@ -162,14 +162,12 @@ function WeatherPage(props: WeatherPageProps): JSX.Element {
     useState<IWeatherState>(initialWeatherState);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isMetricUnits, setIsMetricUnits] = useState<boolean>(true);
-  const isMobile = useWindowWidth() <= 768;
 
   const userSchema = object({
     location: string().required().nonNullable(),
   });
 
   useEffect(() => {
-    console.log({ isMobile, weatherState });
     if (weatherState.location) {
       getData();
     }

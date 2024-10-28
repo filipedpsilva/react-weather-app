@@ -1,14 +1,13 @@
-import dayjs from "dayjs";
-import styled from "styled-components";
-
-import { ForecastData } from "../../data/interfaces";
-import { formatTemperature, getWindDirection } from "../../helpers";
-import { DEVICE_SIZES } from "../../data/constants";
-import { useWindowWidth } from "@react-hook/window-size";
 import { Fragment } from "react/jsx-runtime";
 
-const FULL_DAY_FORMAT = "YYYY-MM-DD HH:mm";
-const NOON_TIME = "12:00:00";
+import dayjs from "dayjs";
+import styled from "styled-components";
+import { useWindowWidth } from "@react-hook/window-size";
+
+import { DEVICE_SIZES } from "../../data/constants";
+import { ForecastData } from "../../data/interfaces";
+import { formatTemperature, getWindDirection } from "../../helpers";
+import { formatVisibility } from "../../helpers/helpers";
 
 // #region Styling
 
@@ -23,7 +22,6 @@ const ForecastWeatherSection = styled.div`
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
   border: 1px solid #000000;
   color: #ffffff;
-  gap: 2rem;
 
   & details {
     margin: 1rem 0;
@@ -44,8 +42,17 @@ const TableContainer = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
+  align-items: flex-start;
   max-width: 100%;
 
+  & hr {
+    width: 80%;
+    border: 1px solid #fff;
+
+    &:last-child {
+      display: none;
+    }
+  }
 
   @media only screen and (min-width: ${DEVICE_SIZES.mobileS}) and (max-width: ${DEVICE_SIZES.tablet}) {
     &.mobile {
@@ -59,24 +66,43 @@ const TableContainer = styled.div`
   }
 `;
 
-const Table = styled.table`
+const Table = styled.div`
   margin: 2rem;
-  max-width: 10rem;
+  width: 8rem;
+  max-width: 8rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .capitalize {
+    margin-top: 0.5rem;
+    text-transform: capitalize;
+  }
 
   @media only screen and (max-width: ${DEVICE_SIZES.laptop}) {
     margin: 2rem 0;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    display: block;
   }
 
-  @media only screen and (min-width: ${DEVICE_SIZES.mobileS}) and (max-width: ${DEVICE_SIZES.tablet}) {
+  @media only screen and (max-width: ${DEVICE_SIZES.tablet}) {
+    display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    display: block;
   }
+`;
+
+const TableRow = styled.div`
+  flex-direction: row;
+`;
+
+const TableHeader = styled.h2`
+  display: table-cell;
+  vertical-align: inherit;
+  font-weight: bold;
+  text-align: -internal-center;
+  unicode-bidi: isolate;
+  padding: 1px;
 `;
 
 const WeatherIcon = styled.img`
@@ -85,6 +111,9 @@ const WeatherIcon = styled.img`
 `;
 
 // #endregion Styling
+
+const FULL_DAY_FORMAT = "YYYY-MM-DD HH:mm";
+const NOON_TIME = "12:00:00";
 
 interface ForecastComponentProps {
   forecastData: ForecastData;
@@ -101,11 +130,10 @@ function ForecastComponent(props: ForecastComponentProps): JSX.Element {
   // #region Aux methods
 
   function formatPop(pop: number): string {
-    const percentage = new Intl.NumberFormat("default", {
+    return new Intl.NumberFormat("en", {
       style: "percent",
       maximumFractionDigits: 2,
     }).format(pop);
-    return `${percentage} of rain`;
   }
 
   // #endregion Aux methods
@@ -121,114 +149,116 @@ function ForecastComponent(props: ForecastComponentProps): JSX.Element {
                 date.dt_txt.toString().includes(NOON_TIME) && (
                   <Fragment key={key}>
                     <Table>
-                      <thead>
-                        <tr>
-                          <th
-                            title={dayjs(date.dt_txt).format(FULL_DAY_FORMAT)}
-                          >
-                            {dayjs(date.dt_txt).format("ddd DD")}
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>
-                            <WeatherIcon
-                              src={`https://openweathermap.org/img/wn/${date.weather[0].icon}@2x.png`}
-                              title={date.weather[0].description}
-                            />
-                          </td>
-                        </tr>
-                        <tr>
-                          <td
-                            title={`Feels like ${formatTemperature(
-                              date.main.feels_like,
-                              isMetricUnits
-                            )}`}
-                          >
-                            <strong>
-                              {formatTemperature(date.main.temp, isMetricUnits)}
-                            </strong>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>
-                            {formatTemperature(
-                              date.main.temp_min,
-                              isMetricUnits
-                            )}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>
-                            {date.weather[0].description}{" "}
-                            {date.clouds.all ? `(${date.clouds.all}%)` : ""}
-                          </td>
-                        </tr>
-                      </tbody>
+                      <TableRow>
+                        <TableHeader
+                          title={dayjs(date.dt_txt).format(FULL_DAY_FORMAT)}
+                        >
+                          {dayjs(date.dt_txt).format("ddd DD")}
+                        </TableHeader>
+                      </TableRow>
+                      <TableRow>{dayjs(date.dt_txt).format("HH:mm")}</TableRow>
+                      <TableRow>
+                        <WeatherIcon
+                          src={`https://openweathermap.org/img/wn/${date.weather[0].icon}@2x.png`}
+                          title={date.weather[0].description}
+                        />
+                      </TableRow>
+                      <TableRow
+                        title={`Feels like ${formatTemperature(
+                          date.main.feels_like,
+                          isMetricUnits
+                        )}`}
+                      >
+                        <strong>
+                          {formatTemperature(date.main.temp, isMetricUnits)}
+                        </strong>
+                      </TableRow>
+                      <TableRow>
+                        {formatTemperature(date.main.temp_min, isMetricUnits)}
+                      </TableRow>
+                      <TableRow>
+                        {date.weather[0].description}{" "}
+                        {date.clouds.all ? `(${date.clouds.all}%)` : ""}
+                      </TableRow>
                     </Table>
                     <details className="mobile">
                       <summary>More details</summary>
                       <TableContainer className="mobile">
                         <Table>
-                          <tbody>
-                            <tr>
-                              <td>{date.main.humidity}% Humidity</td>
-                            </tr>
-                            <tr>
-                              <td>{date.visibility} m</td>
-                            </tr>
-                            <tr>
-                              <td>{date.main.pressure} hPa</td>
-                            </tr>
-                            <tr>
-                              <td>{date.main.grnd_level} hPa</td>
-                            </tr>
-                            <tr>
-                              <td>{date.main.sea_level} hPa</td>
-                            </tr>
-                            {date.pop > 0 && (
-                              <tr>
-                                <td>{formatPop(date.pop)}</td>
-                              </tr>
-                            )}
-                            {date.wind && (
-                              <>
-                                {date.wind.speed && date.wind.deg && (
-                                  <tr>
-                                    <td>
-                                      {date.wind.speed}
-                                      {isMetricUnits ? " m/s" : " mph"}{" "}
-                                      {getWindDirection(date.wind.deg)}
-                                      {date.wind.gust && (
-                                        <>
-                                          , Gust at {date.wind.gust}
-                                          {isMetricUnits ? " m/s" : " mph"}
-                                        </>
-                                      )}
-                                    </td>
-                                  </tr>
-                                )}
-                              </>
-                            )}
-                            {date.rain && (
-                              <tr>
-                                <td>
-                                  {date.rain["3h"]} mm of rain for last 3 hours
-                                </td>
-                              </tr>
-                            )}
-                            {date.snow && (
-                              <tr>
-                                <td>
-                                  {date.snow["3h"]} mm of snow for last 3 hours
-                                </td>
-                              </tr>
-                            )}
-                          </tbody>
+                          {date.wind.speed && date.wind.deg && (
+                            <>
+                              <TableRow className="capitalize">
+                                <strong>wind</strong>
+                              </TableRow>
+                              <TableRow>
+                                {date.wind.speed}{" "}
+                                {isMetricUnits ? " m/s" : " mph"}{" "}
+                                <strong>
+                                  {getWindDirection(date.wind.deg)}
+                                </strong>
+                              </TableRow>
+                            </>
+                          )}
+
+                          {date.wind.gust && (
+                            <>
+                              <TableRow className="capitalize">
+                                <strong>wind gust</strong>
+                              </TableRow>
+                              <TableRow>
+                                {date.wind.gust}
+                                {isMetricUnits ? " m/s" : " mph"}
+                              </TableRow>
+                            </>
+                          )}
+                          <TableRow className="capitalize">
+                            <strong>humidity</strong>
+                          </TableRow>
+                          <TableRow>{date.main.humidity}%</TableRow>
+                          <TableRow className="capitalize">
+                            <strong>visibility</strong>
+                          </TableRow>
+                          <TableRow>
+                            {formatVisibility(date.visibility)}
+                          </TableRow>
+                          <TableRow className="capitalize">
+                            <strong>pressure</strong>
+                          </TableRow>
+                          <TableRow>{date.main.pressure} hPa</TableRow>
+
+                          {date.pop > 0 && (
+                            <>
+                              <TableRow className="capitalize">
+                                <strong title="Probability of precipitation">
+                                  Prob. of precipitation
+                                </strong>
+                              </TableRow>
+                              <TableRow>{formatPop(date.pop)}</TableRow>
+                            </>
+                          )}
+
+                          {date.rain && (
+                            <>
+                              <TableRow className="capitalize">
+                                <strong>rain</strong>
+                              </TableRow>
+                              <TableRow>{date.rain["3h"]} mm</TableRow>
+                              <TableRow>(last 3 hours)</TableRow>
+                            </>
+                          )}
+                          {date.snow && (
+                            <>
+                              <TableRow className="capitalize">
+                                <strong>snow</strong>
+                              </TableRow>
+                              <TableRow>{date.snow["3h"]} mm</TableRow>
+                              <TableRow>(last 3 hours)</TableRow>
+                            </>
+                          )}
                         </Table>
                       </TableContainer>
                     </details>
+                    <hr></hr>
                   </Fragment>
                 )
             )}
@@ -240,51 +270,37 @@ function ForecastComponent(props: ForecastComponentProps): JSX.Element {
                 (date, key) =>
                   date.dt_txt.toString().includes(NOON_TIME) && (
                     <Table key={key}>
-                      <thead>
-                        <tr>
-                          <th
-                            title={dayjs(date.dt_txt).format(FULL_DAY_FORMAT)}
-                          >
-                            {dayjs(date.dt_txt).format("ddd DD")}
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>
-                            <WeatherIcon
-                              src={`https://openweathermap.org/img/wn/${date.weather[0].icon}@2x.png`}
-                              title={date.weather[0].description}
-                            />
-                          </td>
-                        </tr>
-                        <tr>
-                          <td
-                            title={`Feels like ${formatTemperature(
-                              date.main.feels_like,
-                              isMetricUnits
-                            )}`}
-                          >
-                            <strong>
-                              {formatTemperature(date.main.temp, isMetricUnits)}
-                            </strong>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>
-                            {formatTemperature(
-                              date.main.temp_min,
-                              isMetricUnits
-                            )}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>
-                            {date.weather[0].description}{" "}
-                            {date.clouds.all ? `(${date.clouds.all}%)` : ""}
-                          </td>
-                        </tr>
-                      </tbody>
+                      <TableRow>
+                        <TableHeader
+                          title={dayjs(date.dt_txt).format(FULL_DAY_FORMAT)}
+                        >
+                          {dayjs(date.dt_txt).format("ddd DD")}
+                        </TableHeader>
+                      </TableRow>
+                      <TableRow>{dayjs(date.dt_txt).format("HH:mm")}</TableRow>
+                      <TableRow>
+                        <WeatherIcon
+                          src={`https://openweathermap.org/img/wn/${date.weather[0].icon}@2x.png`}
+                          title={date.weather[0].description}
+                        />
+                      </TableRow>
+                      <TableRow
+                        title={`Feels like ${formatTemperature(
+                          date.main.feels_like,
+                          isMetricUnits
+                        )}`}
+                      >
+                        <strong>
+                          {formatTemperature(date.main.temp, isMetricUnits)}
+                        </strong>
+                      </TableRow>
+                      <TableRow>
+                        {formatTemperature(date.main.temp_min, isMetricUnits)}
+                      </TableRow>
+                      <TableRow className="capitalize">
+                        {date.weather[0].description}{" "}
+                        {date.clouds.all && `Cloudiness at ${date.clouds.all}%`}
+                      </TableRow>
                     </Table>
                   )
               )}
@@ -296,61 +312,72 @@ function ForecastComponent(props: ForecastComponentProps): JSX.Element {
                   (date, key) =>
                     date.dt_txt.toString().includes(NOON_TIME) && (
                       <Table key={key}>
-                        <tbody>
-                          <tr>
-                            <td>{date.main.humidity}% Humidity</td>
-                          </tr>
-                          <tr>
-                            <td>{date.visibility} m</td>
-                          </tr>
-                          <tr>
-                            <td>{date.main.pressure} hPa</td>
-                          </tr>
-                          <tr>
-                            <td>{date.main.grnd_level} hPa</td>
-                          </tr>
-                          <tr>
-                            <td>{date.main.sea_level} hPa</td>
-                          </tr>
-                          {date.pop > 0 && (
-                            <tr>
-                              <td>{formatPop(date.pop)}</td>
-                            </tr>
-                          )}
-                          {date.wind && (
-                            <>
-                              {date.wind.speed && date.wind.deg && (
-                                <tr>
-                                  <td>
-                                    {date.wind.speed}
-                                    {isMetricUnits ? " m/s" : " mph"}{" "}
-                                    {getWindDirection(date.wind.deg)}
-                                    {date.wind.gust && (
-                                      <>
-                                        , Gust at {date.wind.gust}
-                                        {isMetricUnits ? " m/s" : " mph"}
-                                      </>
-                                    )}
-                                  </td>
-                                </tr>
-                              )}
-                            </>
-                          )}
-                          {date.rain && (
-                            <tr>
-                              <td>
-                                {date.rain["3h"]} mm of rain for last 3 hours
-                              </td>
-                            </tr>
-                          )}
-                          {date.snow && (
-                            <tr>
-                              <td>
-                                {date.snow["3h"]} mm of snow for last 3 hours
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
+                        {date.wind.speed && date.wind.deg && (
+                          <>
+                            <TableRow className="capitalize">
+                              <strong>wind</strong>
+                            </TableRow>
+                            <TableRow>
+                              {date.wind.speed}{" "}
+                              {isMetricUnits ? " m/s" : " mph"}{" "}
+                              <strong>{getWindDirection(date.wind.deg)}</strong>
+                            </TableRow>
+                          </>
+                        )}
+
+                        {date.wind.gust && (
+                          <>
+                            <TableRow className="capitalize">
+                              <strong>wind gust</strong>
+                            </TableRow>
+                            <TableRow>
+                              {date.wind.gust}
+                              {isMetricUnits ? " m/s" : " mph"}
+                            </TableRow>
+                          </>
+                        )}
+                        <TableRow className="capitalize">
+                          <strong>humidity</strong>
+                        </TableRow>
+                        <TableRow>{date.main.humidity}%</TableRow>
+                        <TableRow className="capitalize">
+                          <strong>visibility</strong>
+                        </TableRow>
+                        <TableRow>{formatVisibility(date.visibility)}</TableRow>
+                        <TableRow className="capitalize">
+                          <strong>pressure</strong>
+                        </TableRow>
+                        <TableRow>{date.main.pressure} hPa</TableRow>
+
+                        {date.pop > 0 && (
+                          <>
+                            <TableRow className="capitalize">
+                              <strong title="Probability of precipitation">
+                                Prob. of precipitation
+                              </strong>
+                            </TableRow>
+                            <TableRow>{formatPop(date.pop)}</TableRow>
+                          </>
+                        )}
+
+                        {date.rain && (
+                          <>
+                            <TableRow className="capitalize">
+                              <strong>rain</strong>
+                            </TableRow>
+                            <TableRow>{date.rain["3h"]} mm</TableRow>
+                            <TableRow>(last 3 hours)</TableRow>
+                          </>
+                        )}
+                        {date.snow && (
+                          <>
+                            <TableRow className="capitalize">
+                              <strong>snow</strong>
+                            </TableRow>
+                            <TableRow>{date.snow["3h"]} mm</TableRow>
+                            <TableRow>(last 3 hours)</TableRow>
+                          </>
+                        )}
                       </Table>
                     )
                 )}

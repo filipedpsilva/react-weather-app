@@ -2,10 +2,9 @@ import dayjs from "dayjs";
 import styled from "styled-components";
 
 import { WeatherData } from "../../data/interfaces";
-import { formatTemperature, getWindDirection } from "../../helpers";
 import { DEVICE_SIZES } from "../../data/constants";
-
-const HOUR_FORMAT = "HH:mm";
+import { formatTemperature, getWindDirection } from "../../helpers";
+import { formatVisibility } from "../../helpers/helpers";
 
 // #region Styling
 
@@ -115,7 +114,7 @@ const Country = styled.h1`
   max-width: 80vw;
 `;
 
-const PopperLink = styled.a`
+const Title = styled.p`
   color: #ffffff;
   font-weight: 900;
 
@@ -125,6 +124,8 @@ const PopperLink = styled.a`
 `;
 
 // #endregion Styling
+
+const HOUR_FORMAT = "HH:mm";
 
 interface CurrentWeatherComponentProps {
   imgUrl: string;
@@ -218,8 +219,7 @@ function CurrentWeatherComponent(
           <SecondaryInfo>
             {wind && (
               <div>
-                <PopperLink
-                  href="#"
+                <Title
                   title={
                     `${wind.speed} ${
                       isMetricUnits ? "m/s" : "mph"
@@ -230,7 +230,7 @@ function CurrentWeatherComponent(
                   }
                 >
                   Wind
-                </PopperLink>
+                </Title>
                 <p>{`${wind.speed} ${
                   isMetricUnits ? "m/s" : "mph"
                 } ${getWindDirection(wind.deg)}`}</p>
@@ -241,51 +241,38 @@ function CurrentWeatherComponent(
                 )}
               </div>
             )}
+            {humidity && (
+              <div>
+                <Title title={`${humidity}%`}>Humidity</Title>
+                <p>{`${humidity}%`}</p>
+              </div>
+            )}
+            {visibility && (
+              <div>
+                <Title title={formatVisibility(visibility)}>Visibility</Title>
+                <p>{formatVisibility(visibility)}</p>
+              </div>
+            )}
+            {pressure && (
+              <div>
+                <Title title={`${pressure} hPa`}>Pressure</Title>
+                <p>{`${pressure} hPa`}</p>
+              </div>
+            )}
+
             {rain?.["1h"] && (
               <div>
-                <PopperLink
-                  href="#"
-                  title={`${rain["1h"]} mm/h in the last 1h`}
-                >
-                  Rain
-                </PopperLink>
-                <p>{`${rain["1h"]} mm/h in the last 1h`}</p>
+                <Title title={`${rain["1h"]} mm/h in the last 1h`}>Rain</Title>
+                <p>{`${rain["1h"]} mm/h `}</p>
+                <p>in the last 1h</p>
               </div>
             )}
 
             {snow?.["1h"] && (
               <div>
-                <PopperLink
-                  href="#"
-                  title={`${snow["1h"]} mm/h in the last 1h`}
-                >
-                  Snow
-                </PopperLink>
-                <p>{`${snow["1h"]} mm/h in the last 1h`}</p>
-              </div>
-            )}
-            {humidity && (
-              <div>
-                <PopperLink href="#" title={`${humidity}%`}>
-                  Humidity
-                </PopperLink>
-                <p>{`${humidity}%`}</p>
-              </div>
-            )}
-            {pressure && (
-              <div>
-                <PopperLink href="#" title={`${pressure} hPa`}>
-                  Pressure
-                </PopperLink>
-                <p>{`${pressure} hPa`}</p>
-              </div>
-            )}
-            {visibility && (
-              <div>
-                <PopperLink href="#" title={`${visibility} m`}>
-                  Visibility
-                </PopperLink>
-                <p>{`${visibility} m`}</p>
+                <Title title={`${snow["1h"]} mm/h in the last 1h`}>Snow</Title>
+                <p>{`${snow["1h"]} mm/h`}</p>
+                <p>in the last 1h</p>
               </div>
             )}
           </SecondaryInfo>

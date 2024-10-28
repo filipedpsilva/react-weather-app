@@ -22,3 +22,16 @@ export function getWindDirection(degrees: number): string {
 
     return DIRECTIONS[direction];
 }
+
+
+export function formatVisibility(visibility: number): string {
+
+    const visibilityInKilometers = visibility / 1000;
+
+    return new Intl.NumberFormat("en", {
+        maximumFractionDigits: 2,
+        style: "unit",
+        unitDisplay: "short",
+        unit: "kilometer",
+    }).format(visibilityInKilometers);
+}
