@@ -5,10 +5,139 @@ import styled from "styled-components";
 import { createApi } from "unsplash-js";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { object, string } from "yup";
+import { useWindowWidth } from "@react-hook/window-size/throttled";
 
-import { ACCESS_KEY, API_KEY, BASE_API_URL } from "../../data/constants";
+import {
+  ACCESS_KEY,
+  API_KEY,
+  BASE_API_URL,
+  DEVICE_SIZES,
+} from "../../data/constants";
 import { ForecastData, WeatherData } from "../../data/interfaces";
 import { CurrentWeatherComponent, ForecastComponent } from "../../components";
+
+// #region Styling
+
+const SearchBar = styled.div<{ $isMetricUnits: boolean }>`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 4rem;
+  margin-bottom: 4rem;
+
+  @media only screen and (min-width: ${DEVICE_SIZES.mobileS}) and (max-width: ${DEVICE_SIZES.tablet}) {
+    max-width: 90vw;
+    gap: 1rem;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+  }
+
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    content: "ºF";
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(142, 65, 230, 0.75);
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+  }
+
+  .slider:before {
+    position: absolute;
+    content: "${(props) => (props.$isMetricUnits ? "ºC" : "ºF")}";
+    height: 26px;
+    width: 26px;
+    left: 30px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+    color: rgba(41, 118, 162, 0.75);
+  }
+
+  input:checked + .slider {
+    background-color: rgba(63, 157, 211, 0.75);
+    color: rgba(41, 118, 162, 0.75);
+  }
+
+  input:focus + .slider {
+    box-shadow: 0 0 10px #ffffff;
+  }
+
+  input:checked + .slider:before {
+    -webkit-transform: translateX(-26px);
+    -ms-transform: translateX(-26px);
+    transform: translateX(-26px);
+  }
+
+  .slider.round {
+    border-radius: 34px;
+
+    &:before {
+      border-radius: 50%;
+    }
+  }
+`;
+
+const Input = styled(Field)`
+  display: flex;
+  position: relative;
+  min-height: 44px;
+  border: 1px solid transparent;
+  background: #4d5156;
+  box-shadow: none;
+  border-radius: 24px;
+  margin: 0 auto;
+  width: 638px;
+  max-width: 584px;
+  padding: 0 20px;
+  font-size: xx-large;
+
+  @media only screen and (min-width: ${DEVICE_SIZES.mobileS}) and (max-width: ${DEVICE_SIZES.tablet}) {
+    max-width: 80vw;
+  }
+`;
+
+const Loading = styled.div`
+  background-color: rgb(104, 93, 255);
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  animation: fadeInAnimation ease 1s;
+  animation-iteration-count: 1;
+
+  @keyframes fadeInAnimation {
+    0% {
+      opacity: 0;
+    }
+
+    100% {
+      opacity: 1;
+    }
+  }
+`;
+
+// #endregion Styling
 
 interface IWeatherState {
   errorMessage: string;
@@ -33,124 +162,18 @@ function WeatherPage(props: WeatherPageProps): JSX.Element {
     useState<IWeatherState>(initialWeatherState);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isMetricUnits, setIsMetricUnits] = useState<boolean>(true);
+  const isMobile = useWindowWidth() <= 768;
 
   const userSchema = object({
     location: string().required().nonNullable(),
   });
 
   useEffect(() => {
+    console.log({ isMobile, weatherState });
     if (weatherState.location) {
       getData();
     }
   }, [isMetricUnits, weatherState.location]);
-
-  const SearchBar = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 4rem;
-    margin-bottom: 8rem;
-
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 60px;
-      height: 34px;
-    }
-
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      content: "ºF";
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      -webkit-transition: 0.4s;
-      transition: 0.4s;
-    }
-
-    .slider:before {
-      position: absolute;
-      content: "${isMetricUnits ? "ºC" : "ºF"}";
-      height: 26px;
-      width: 26px;
-      left: 30px;
-      bottom: 4px;
-      background-color: white;
-      -webkit-transition: 0.4s;
-      transition: 0.4s;
-      color: rgba(41, 118, 162, 0.75);
-    }
-
-    input:checked + .slider {
-      background-color: rgba(41, 118, 162, 0.75);
-      color: rgba(41, 118, 162, 0.75);
-    }
-
-    input:focus + .slider {
-      box-shadow: 0 0 10px #ffffff;
-    }
-
-    input:checked + .slider:before {
-      -webkit-transform: translateX(-26px);
-      -ms-transform: translateX(-26px);
-      transform: translateX(-26px);
-    }
-
-    .slider.round {
-      border-radius: 34px;
-    }
-
-    .slider.round:before {
-      border-radius: 50%;
-    }
-  `;
-
-  const Input = styled(Field)`
-    display: flex;
-    position: relative;
-    min-height: 44px;
-    border: 1px solid transparent;
-    background: #4d5156;
-    box-shadow: none;
-    border-radius: 24px;
-    margin: 0 auto;
-    width: 638px;
-    max-width: 584px;
-    padding: 0 20px;
-    font-size: xx-large;
-  `;
-
-  const Loading = styled.div`
-    background-color: rgb(104, 93, 255);
-    height: 100%;
-    width: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 1;
-    animation: fadeInAnimation ease 1s;
-    animation-iteration-count: 1;
-
-    @keyframes fadeInAnimation {
-      0% {
-        opacity: 0;
-      }
-
-      100% {
-        opacity: 1;
-      }
-    }
-  `;
 
   function getData() {
     setIsLoading(true);
@@ -213,7 +236,7 @@ function WeatherPage(props: WeatherPageProps): JSX.Element {
     <>
       {isLoading && <Loading />}
 
-      <SearchBar>
+      <SearchBar $isMetricUnits={isMetricUnits}>
         <Formik
           initialValues={{ location: weatherState.location }}
           validationSchema={() => userSchema}
@@ -227,7 +250,7 @@ function WeatherPage(props: WeatherPageProps): JSX.Element {
                 <Input
                   disabled={isLoading}
                   id="location-field"
-                  type="location"
+                  type="search"
                   name="location"
                   placeholder="Search for location"
                 />

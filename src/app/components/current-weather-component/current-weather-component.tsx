@@ -3,8 +3,128 @@ import styled from "styled-components";
 
 import { WeatherData } from "../../data/interfaces";
 import { formatTemperature, getWindDirection } from "../../helpers";
+import { DEVICE_SIZES } from "../../data/constants";
 
 const HOUR_FORMAT = "HH:mm";
+
+// #region Styling
+
+const CurrentWeatherSection = styled.div<{ $imgUrl: string }>`
+  position: relative;
+  display: flex;
+  margin: 2rem;
+  flex-direction: column;
+  min-height: 20vh;
+  width: 80vw;
+  border-radius: 16px;
+  backdrop-filter: blur(20px);
+  background-color: #777777;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  border: 1px solid #000000;
+  color: #ffffff;
+  background-image: linear-gradient(
+      rgba(15, 15, 15, 0.9),
+      rgba(15, 15, 15, 0.4)
+    ),
+    url(${(props) => props.$imgUrl});
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+
+  @media only screen and (min-width: ${DEVICE_SIZES.mobileS}) and (max-width: ${DEVICE_SIZES.tablet}) {
+    width: 90vw;
+    max-width: 90vw;
+    flex-direction: column;
+  }
+`;
+
+const WeatherIcon = styled.img`
+  max-width: 100px;
+  max-height: 100px;
+`;
+
+const MainInfo = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: 1rem;
+  text-transform: capitalize;
+
+  @media only screen and (min-width: ${DEVICE_SIZES.mobileS}) and (max-width: ${DEVICE_SIZES.tablet}) {
+    max-width: 90vw;
+    flex-direction: column;
+  }
+`;
+
+const SecondaryInfo = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+
+  @media only screen and (min-width: ${DEVICE_SIZES.mobileS}) and (max-width: ${DEVICE_SIZES.tablet}) {
+    max-width: 90vw;
+    flex-direction: column;
+  }
+`;
+
+const WeatherSection = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 -2rem -1rem;
+  gap: 0.5rem;
+
+  @media only screen and (min-width: ${DEVICE_SIZES.mobileS}) and (max-width: ${DEVICE_SIZES.tablet}) {
+    max-width: 90vw;
+    flex-direction: column;
+    justify-content: center;
+    margin: 1rem 0;
+
+    & h1 {
+      margin: 0rem;
+    }
+  }
+`;
+
+const FeelsLikeSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: start;
+
+  & h2,
+  p {
+    justify-content: start;
+    margin: 0;
+  }
+
+  @media only screen and (min-width: ${DEVICE_SIZES.mobileS}) and (max-width: ${DEVICE_SIZES.tablet}) {
+    max-width: 90vw;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+`;
+
+const Country = styled.h1`
+  margin: 0;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 80vw;
+`;
+
+const PopperLink = styled.a`
+  color: #ffffff;
+  font-weight: 900;
+
+  &:hover {
+    color: #ffffff;
+  }
+`;
+
+// #endregion Styling
 
 interface CurrentWeatherComponentProps {
   imgUrl: string;
@@ -21,14 +141,7 @@ function CurrentWeatherComponent(
     coord,
     dt,
     id,
-    main: {
-      feels_like,
-      humidity,
-      pressure,
-      temp,
-      temp_max,
-      temp_min,
-    },
+    main: { feels_like, humidity, pressure, temp, temp_max, temp_min },
     name,
     sys: { country, sunrise, sunset },
     timezone,
@@ -42,86 +155,6 @@ function CurrentWeatherComponent(
   const suntime = `Sunlight: ${dayjs
     .unix(sunrise)
     .format(HOUR_FORMAT)} - ${dayjs.unix(sunset).format(HOUR_FORMAT)}`;
-
-  // #region Styling
-
-  const CurrentWeatherSection = styled.div`
-    position: relative;
-    display: flex;
-    margin: 2rem;
-    flex-direction: column;
-    min-height: 20vh;
-    width: 80vw;
-    border-radius: 16px;
-    backdrop-filter: blur(20px);
-    background-color: #777777;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
-    border: 1px solid #000000;
-    color: #ffffff;
-    background-image: linear-gradient(
-        rgba(15, 15, 15, 0.9),
-        rgba(15, 15, 15, 0.4)
-      ),
-      url(${imgUrl});
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
-  `;
-
-  const WeatherIcon = styled.img`
-    max-width: 100px;
-    max-height: 100px;
-  `;
-
-  const MainInfo = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-    align-items: center;
-    padding: 1rem;
-    text-transform: capitalize;
-  `;
-
-  const SecondaryInfo = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-  `;
-
-  const WeatherSection = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    margin: 0 0 -2rem -1rem;
-    gap: 0.5rem;
-  `;
-
-  const FeelsLikeSection = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: start;
-    justify-content: start;
-    & h2,
-    p {
-      justify-content: start;
-      margin: 0;
-    }
-  `;
-
-  const Country = styled.h1`
-    margin: 0;
-  `;
-
-  const PopperLink = styled.a`
-    color: #ffffff;
-    font-weight: 900;
-    &:hover {
-      color: #ffffff;
-    }
-  `;
-
-  // #endregion Styling
 
   // #region Aux methods
 
@@ -137,6 +170,11 @@ function CurrentWeatherComponent(
 
   // #endregion Aux methods
 
+  const minAndMaxTemp = `Min: ${formatTemperature(
+    temp_min,
+    isMetricUnits
+  )} | Max: ${formatTemperature(temp_max, isMetricUnits)}`;
+
   return (
     <>
       <h2>Current weather</h2>
@@ -144,7 +182,7 @@ function CurrentWeatherComponent(
         {dayjs.unix(dt as number).format(HOUR_FORMAT)} (
         {mapTimezoneToUTC(timezone as number)})
       </h3>
-      <CurrentWeatherSection>
+      <CurrentWeatherSection $imgUrl={imgUrl}>
         <div>
           <MainInfo key={id}>
             <div>
@@ -159,12 +197,7 @@ function CurrentWeatherComponent(
                   src={`https://openweathermap.org/img/wn/${weather[0].icon}@2x.png`}
                   title={weather[0].description}
                 />
-                <h1
-                  title={`Min: ${formatTemperature(
-                    temp_min,
-                    isMetricUnits
-                  )} | Max: ${formatTemperature(temp_max, isMetricUnits)}`}
-                >
+                <h1 title={minAndMaxTemp}>
                   {formatTemperature(temp, isMetricUnits)}
                 </h1>
                 <FeelsLikeSection>
