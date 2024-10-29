@@ -34,10 +34,10 @@ function GraphComponent(props: GraphComponentProps): JSX.Element {
   const tempData: Datum[] = [];
 
   data.forEach((entry) => {
-    const meetsFilter =
-      entry.dt_txt.toString().includes(NOON_TIME) ||
-      entry.dt_txt.toString().includes(MIDNIGHT_TIME);
-
+    const meetsFilter = isMobile
+      ? entry.dt_txt.toString().includes(NOON_TIME)
+      : entry.dt_txt.toString().includes(NOON_TIME) ||
+        entry.dt_txt.toString().includes(MIDNIGHT_TIME);
     if (meetsFilter) {
       tempData.push({
         x: new Date(entry.dt_txt),
@@ -84,7 +84,7 @@ function GraphComponent(props: GraphComponentProps): JSX.Element {
     ? { top: 50, right: 20, bottom: 50, left: 20 }
     : { top: 50, right: 40, bottom: 50, left: 40 };
 
-  const format = isMobile ? "%H" : "%a %d, %H:%M";
+  const format = isMobile ? "%H:%M" : "%a %d, %H:%M";
 
   return (
     <ResponsiveStreamGraph>

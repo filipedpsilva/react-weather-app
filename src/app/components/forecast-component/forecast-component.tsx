@@ -8,6 +8,7 @@ import {
   DEVICE_SIZES,
   NOON_TIME,
   FULL_DAY_FORMAT,
+  HOUR_FORMAT,
 } from "src/app/data/constants";
 import { ForecastData } from "src/app/data/interfaces";
 import {
@@ -162,7 +163,9 @@ function ForecastComponent(props: ForecastComponentProps): JSX.Element {
                           {dayjs(date.dt_txt).format("ddd DD")}
                         </TableHeader>
                       </TableRow>
-                      <TableRow>{dayjs(date.dt_txt).format("HH:mm")}</TableRow>
+                      <TableRow>
+                        {dayjs(date.dt_txt).format(HOUR_FORMAT)}
+                      </TableRow>
                       <TableRow>
                         <WeatherIcon
                           src={`https://openweathermap.org/img/wn/${date.weather[0].icon}@2x.png`}
@@ -268,7 +271,9 @@ function ForecastComponent(props: ForecastComponentProps): JSX.Element {
                 )
             )}
             <details>
-              <summary>Temperature Graph</summary>
+              <summary>
+                <strong>Temperature Graph</strong>
+              </summary>
               <>
                 <p>(click on point to get more info)</p>
                 <GraphComponent
