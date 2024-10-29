@@ -1,5 +1,13 @@
+export function getTemperatureUnit(isMetricUnits: boolean): string {
+    return isMetricUnits ? "ºC" : "ºF";
+}
+
 export function formatTemperature(temp: number, isMetricUnits: boolean): string {
-    return `${Math.round(temp)} ${isMetricUnits ? "ºC" : "ºF"}`;
+    return `${Math.round(temp)}${getTemperatureUnit(isMetricUnits)}`;
+}
+
+export function getSpeedUnit(isMetricUnits: boolean): string {
+    return isMetricUnits ? "m/s" : "mph";
 }
 
 export function getWindDirection(degrees: number): string {

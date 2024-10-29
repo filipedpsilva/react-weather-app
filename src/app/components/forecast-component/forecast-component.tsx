@@ -4,10 +4,19 @@ import dayjs from "dayjs";
 import styled from "styled-components";
 import { useWindowWidth } from "@react-hook/window-size";
 
-import { DEVICE_SIZES } from "../../data/constants";
-import { ForecastData } from "../../data/interfaces";
-import { formatTemperature, getWindDirection } from "../../helpers";
-import { formatVisibility } from "../../helpers/helpers";
+import {
+  DEVICE_SIZES,
+  NOON_TIME,
+  FULL_DAY_FORMAT,
+} from "src/app/data/constants";
+import { ForecastData } from "src/app/data/interfaces";
+import {
+  formatTemperature,
+  getWindDirection,
+  formatVisibility,
+  getSpeedUnit,
+} from "src/app/helpers/helpers";
+import { GraphComponent } from "src/app/shared";
 
 // #region Styling
 
@@ -112,9 +121,6 @@ const WeatherIcon = styled.img`
 
 // #endregion Styling
 
-const FULL_DAY_FORMAT = "YYYY-MM-DD HH:mm";
-const NOON_TIME = "12:00:00";
-
 interface ForecastComponentProps {
   forecastData: ForecastData;
   isMetricUnits: boolean;
@@ -191,8 +197,7 @@ function ForecastComponent(props: ForecastComponentProps): JSX.Element {
                                 <strong>wind</strong>
                               </TableRow>
                               <TableRow>
-                                {date.wind.speed}{" "}
-                                {isMetricUnits ? " m/s" : " mph"}{" "}
+                                {date.wind.speed} {getSpeedUnit(isMetricUnits)}{" "}
                                 <strong>
                                   {getWindDirection(date.wind.deg)}
                                 </strong>
@@ -207,7 +212,7 @@ function ForecastComponent(props: ForecastComponentProps): JSX.Element {
                               </TableRow>
                               <TableRow>
                                 {date.wind.gust}
-                                {isMetricUnits ? " m/s" : " mph"}
+                                {getSpeedUnit(isMetricUnits)}
                               </TableRow>
                             </>
                           )}
@@ -262,6 +267,17 @@ function ForecastComponent(props: ForecastComponentProps): JSX.Element {
                   </Fragment>
                 )
             )}
+            <details>
+              <summary>Temperature Graph</summary>
+              <>
+                <p>(click on point to get more info)</p>
+                <GraphComponent
+                  data={list}
+                  isMetricUnits={isMetricUnits}
+                  isMobile={isMobile}
+                />
+              </>
+            </details>
           </TableContainer>
         ) : (
           <>
@@ -318,8 +334,7 @@ function ForecastComponent(props: ForecastComponentProps): JSX.Element {
                               <strong>wind</strong>
                             </TableRow>
                             <TableRow>
-                              {date.wind.speed}{" "}
-                              {isMetricUnits ? " m/s" : " mph"}{" "}
+                              {date.wind.speed} {getSpeedUnit(isMetricUnits)}{" "}
                               <strong>{getWindDirection(date.wind.deg)}</strong>
                             </TableRow>
                           </>
@@ -332,7 +347,7 @@ function ForecastComponent(props: ForecastComponentProps): JSX.Element {
                             </TableRow>
                             <TableRow>
                               {date.wind.gust}
-                              {isMetricUnits ? " m/s" : " mph"}
+                              {getSpeedUnit(isMetricUnits)}
                             </TableRow>
                           </>
                         )}
@@ -382,6 +397,7 @@ function ForecastComponent(props: ForecastComponentProps): JSX.Element {
                     )
                 )}
               </TableContainer>
+              <GraphComponent data={list} isMetricUnits={isMetricUnits} />
             </details>
           </>
         )}

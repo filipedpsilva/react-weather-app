@@ -1,10 +1,14 @@
 import dayjs from "dayjs";
 import styled from "styled-components";
 
-import { WeatherData } from "../../data/interfaces";
-import { DEVICE_SIZES } from "../../data/constants";
-import { formatTemperature, getWindDirection } from "../../helpers";
-import { formatVisibility } from "../../helpers/helpers";
+import { DEVICE_SIZES, HOUR_FORMAT } from "src/app/data/constants";
+import { WeatherData } from "src/app/data/interfaces";
+import {
+  formatTemperature,
+  getWindDirection,
+  formatVisibility,
+  getSpeedUnit,
+} from "src/app/helpers/helpers";
 
 // #region Styling
 
@@ -50,7 +54,7 @@ const MainInfo = styled.div`
   padding: 1rem;
   text-transform: capitalize;
 
-  @media only screen and (min-width: ${DEVICE_SIZES.mobileS}) and (max-width: ${DEVICE_SIZES.tablet}) {
+  @media only screen and (min-width: ${DEVICE_SIZES.mobileS}) and (max-width: ${DEVICE_SIZES.laptop}) {
     max-width: 90vw;
     flex-direction: column;
   }
@@ -61,7 +65,7 @@ const SecondaryInfo = styled.div`
   flex-direction: row;
   justify-content: space-evenly;
 
-  @media only screen and (min-width: ${DEVICE_SIZES.mobileS}) and (max-width: ${DEVICE_SIZES.tablet}) {
+  @media only screen and (min-width: ${DEVICE_SIZES.mobileS}) and (max-width: ${DEVICE_SIZES.laptop}) {
     max-width: 90vw;
     flex-direction: column;
   }
@@ -75,7 +79,7 @@ const WeatherSection = styled.div`
   margin: 0 0 -2rem -1rem;
   gap: 0.5rem;
 
-  @media only screen and (min-width: ${DEVICE_SIZES.mobileS}) and (max-width: ${DEVICE_SIZES.tablet}) {
+  @media only screen and (min-width: ${DEVICE_SIZES.mobileS}) and (max-width: ${DEVICE_SIZES.laptop}) {
     max-width: 90vw;
     flex-direction: column;
     justify-content: center;
@@ -99,7 +103,7 @@ const FeelsLikeSection = styled.div`
     margin: 0;
   }
 
-  @media only screen and (min-width: ${DEVICE_SIZES.mobileS}) and (max-width: ${DEVICE_SIZES.tablet}) {
+  @media only screen and (min-width: ${DEVICE_SIZES.mobileS}) and (max-width: ${DEVICE_SIZES.laptop}) {
     max-width: 90vw;
     flex-direction: column;
     justify-content: center;
@@ -124,8 +128,6 @@ const Title = styled.p`
 `;
 
 // #endregion Styling
-
-const HOUR_FORMAT = "HH:mm";
 
 interface CurrentWeatherComponentProps {
   imgUrl: string;
@@ -176,6 +178,12 @@ function CurrentWeatherComponent(
     isMetricUnits
   )} | Max: ${formatTemperature(temp_max, isMetricUnits)}`;
 
+  const windTitle =
+    `${wind.speed} ${getSpeedUnit(isMetricUnits)} ${getWindDirection(
+      wind.deg
+    )},` +
+    (wind.gust ? ` Gust at ${wind.gust} ${getSpeedUnit(isMetricUnits)}` : "");
+
   return (
     <>
       <h2>Current weather</h2>
@@ -219,25 +227,12 @@ function CurrentWeatherComponent(
           <SecondaryInfo>
             {wind && (
               <div>
-                <Title
-                  title={
-                    `${wind.speed} ${
-                      isMetricUnits ? "m/s" : "mph"
-                    } ${getWindDirection(wind.deg)}` +
-                    (wind.gust
-                      ? ` Gust at ${wind.gust} ${isMetricUnits ? "m/s" : "mph"}`
-                      : "")
-                  }
-                >
-                  Wind
-                </Title>
-                <p>{`${wind.speed} ${
-                  isMetricUnits ? "m/s" : "mph"
-                } ${getWindDirection(wind.deg)}`}</p>
+                <Title title={windTitle}>Wind</Title>
+                <p>{`${wind.speed} ${getSpeedUnit(
+                  isMetricUnits
+                )} ${getWindDirection(wind.deg)}`}</p>
                 {wind.gust && (
-                  <p>{`Gust at ${wind.gust} ${
-                    isMetricUnits ? "m/s" : "mph"
-                  }`}</p>
+                  <p>{`Gust at ${wind.gust} ${getSpeedUnit(isMetricUnits)}`}</p>
                 )}
               </div>
             )}

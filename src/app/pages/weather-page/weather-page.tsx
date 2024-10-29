@@ -6,14 +6,15 @@ import styled from "styled-components";
 import { createApi } from "unsplash-js";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 
+import { CurrentWeatherComponent, ForecastComponent } from "src/app/components";
 import {
-  ACCESS_KEY,
-  API_KEY,
-  BASE_API_URL,
   DEVICE_SIZES,
-} from "../../data/constants";
-import { ForecastData, WeatherData } from "../../data/interfaces";
-import { CurrentWeatherComponent, ForecastComponent } from "../../components";
+  BASE_API_URL,
+  API_KEY,
+  ACCESS_KEY,
+} from "src/app/data/constants";
+import { WeatherData, ForecastData } from "src/app/data/interfaces";
+import { getTemperatureUnit } from "src/app/helpers/helpers";
 
 // #region Styling
 
@@ -22,14 +23,14 @@ const SearchBar = styled.div<{ $isMetricUnits: boolean }>`
   flex-direction: row;
   justify-content: center;
   gap: 4rem;
-  margin-bottom: 4rem;
+  margin: 0rem 1rem 4rem 0rem;
 
   @media only screen and (min-width: ${DEVICE_SIZES.mobileS}) and (max-width: ${DEVICE_SIZES.tablet}) {
     max-width: 90vw;
     gap: 1rem;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 1rem;
+    margin: 0 0 1rem 0;
   }
 
   .switch {
@@ -48,7 +49,6 @@ const SearchBar = styled.div<{ $isMetricUnits: boolean }>`
   .slider {
     position: absolute;
     cursor: pointer;
-    content: "ºF";
     top: 0;
     left: 0;
     right: 0;
@@ -60,7 +60,7 @@ const SearchBar = styled.div<{ $isMetricUnits: boolean }>`
 
   .slider:before {
     position: absolute;
-    content: "${(props) => (props.$isMetricUnits ? "ºC" : "ºF")}";
+    content: "${(props) => getTemperatureUnit(props.$isMetricUnits)}";
     height: 26px;
     width: 26px;
     left: 30px;
@@ -147,10 +147,7 @@ interface IWeatherState {
   forecastData?: ForecastData;
 }
 
-interface WeatherPageProps {}
-
-// @ts-ignore
-function WeatherPage(props: WeatherPageProps): JSX.Element {
+function WeatherPage(): JSX.Element {
   const initialWeatherState: IWeatherState = {
     errorMessage: "",
     location: "",
@@ -173,20 +170,24 @@ function WeatherPage(props: WeatherPageProps): JSX.Element {
     }
   }, [isMetricUnits, weatherState.location]);
 
-  function getData() {
+  function getUnits(): string {
+    return isMetricUnits ? "metric" : "imperial";
+  }
+
+  function getData(): void {
     setIsLoading(true);
 
     axios
       .get(
-        `${BASE_API_URL}/2.5/weather?q=${weatherState.location}&units=${
-          isMetricUnits ? "metric" : "imperial"
-        }&APPID=${API_KEY}`
+        `${BASE_API_URL}/2.5/weather?q=${
+          weatherState.location
+        }&units=${getUnits()}&APPID=${API_KEY}`
       )
       .then(async (weatherResult) => {
         const forecastResult = await axios.get(
-          `${BASE_API_URL}/2.5/forecast?q=${weatherState.location}&units=${
-            isMetricUnits ? "metric" : "imperial"
-          }&APPID=${API_KEY}`
+          `${BASE_API_URL}/2.5/forecast?q=${
+            weatherState.location
+          }&units=${getUnits()}&APPID=${API_KEY}`
         );
 
         const api = createApi({
