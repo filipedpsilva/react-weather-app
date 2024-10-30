@@ -1,6 +1,8 @@
 import styled from "styled-components";
 import { BasicTooltip } from "@nivo/tooltip";
 import { Datum, PointTooltipProps, Serie, ResponsiveLine } from "@nivo/line";
+import { AxisProps } from "@nivo/axes";
+import { Box } from "@nivo/core";
 
 import { NOON_TIME, MIDNIGHT_TIME, DEVICE_SIZES } from "src/app/data/constants";
 import { List } from "src/app/data/interfaces";
@@ -80,11 +82,20 @@ function GraphComponent(props: GraphComponentProps): JSX.Element {
     );
   }
 
-  const margin = isMobile
-    ? { top: 50, right: 20, bottom: 50, left: 20 }
+  const margin: Box = isMobile
+    ? { top: 70, right: 20, bottom: 50, left: 20 }
     : { top: 50, right: 40, bottom: 50, left: 40 };
 
-  const format = isMobile ? "%H:%M" : "%a %d, %H:%M";
+  const axisTop: AxisProps | null = isMobile
+    ? {
+        tickSize: 5,
+        tickPadding: 25,
+        legendPosition: "end",
+        format: "%H:%M",
+      }
+    : null;
+
+  const format: string = isMobile ? "%m/%d" : "%a %d, %H:%M";
 
   return (
     <ResponsiveStreamGraph>
@@ -113,7 +124,7 @@ function GraphComponent(props: GraphComponentProps): JSX.Element {
         }}
         yFormat={` >-.2f`}
         curve="cardinal"
-        axisTop={null}
+        axisTop={axisTop}
         axisRight={null}
         axisBottom={{
           tickSize: 5,
@@ -145,7 +156,7 @@ function GraphComponent(props: GraphComponentProps): JSX.Element {
         tooltipFormat={" >-.2f"}
         tooltip={tooltip}
         pointLabel={(e) => `${e.data.yFormatted}º`}
-        pointLabelYOffset={-25}
+        pointLabelYOffset={isMobile ? -15 : -25}
         enableTouchCrosshair={true}
         enableGridY={false}
         useMesh={true}
